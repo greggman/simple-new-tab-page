@@ -1,5 +1,4 @@
 "use strict";
-const store = chrome.storage.sync;
 (function () {
   const eventRE = /on([A-Z])(\w+)/;
   function createElem(tag, attrs = {}) { 
