@@ -1,35 +1,66 @@
 "use strict";
 const store = chrome.storage.sync;
 (function () {
-  let dom = document.getElementById("bgimg");
-  dom.style.background = "linear-gradient(220.55deg, #5D85A6 0%, #0E2C5E 100%)";
-  dom.style.backgroundRepeat = "no-repeat";
-  dom.style.backgroundSize = "cover";
-  let rand = Math.random();
-  rand = rand < 0.5 ? Math.floor(rand) : Math.ceil(rand);
-  rand == 0 ? fetchVideo() : fetchImage();
-  function fetchImage() {
-    fetch("https://source.unsplash.com/random/1024x600")
-      .then((resp) => resp)
-      .then((imagelists) => {
-        let selectedImage = imagelists.url;
-        let dom = document.getElementById("bgimg");
-        dom.style.backgroundColor = "grey";
-        dom.style.backgroundImage = `url(${selectedImage})`;
-      })
-      .catch(() => {
-        error();
-      });
+  const eventRE = /on([A-Z])(\w+)/;
+  function createElem(tag, attrs = {}) { 
+    const elem = document.createElement(tag);
+    for (const [key, value] of Object.entries(attrs)) {
+      if (typeof value === 'object') {
+        for (const [k, v] of Object.entries(value)) {
+          elem[key][k] = v;
+        }
+      } else if (typeof value === 'function') {
+        const m = eventRE.exec(key);
+        if (!m) {
+          throw new Error('bad event: ${key}');
+        }
+        const eventType = `${m[1].toLowerCase()}${m[2]}`;
+        elem.addEventListener(eventType, value);
+      } else if (key.startsWith('data')) {
+        const k = `${key[4].toLowerCase()}${key.substr(5)}`;
+        elem.dataset[k] = value;
+      } else if (elem[key] === undefined) {
+        elem.setAttribute(key, value);
+      } else {
+        elem[key] = value;
+      }
+    }
+    return elem;
   }
-  function fetchVideo() {
-    fetch("https://randomvideo.vercel.app/randomvideo")
-      .then((resp) => resp.json())
-      .then((res) => {
-        insertVideo(res?.src?.video_files[0].link);
-      })
-      .catch(() => {
-        error();
-      });
+
+  function el(tag, attrs = {}, children  = []) {
+    const elem = createElem(tag, attrs);
+    for (const child of children) {
+      elem.appendChild(child);
+    }
+    return elem;
+  }
+
+  //if (Math.random() < 0.5) {
+  //  fetchVideo();
+  //} else {
+    fetchImage();
+  //}
+
+  async function fetchImage() {
+    try {
+      const resp = await fetch("https://source.unsplash.com/random/1024x600");
+      const selectedImage = resp.url;
+      const dom = document.getElementById("bgimg");
+      dom.style.backgroundColor = "grey";
+      dom.style.backgroundImage = `url(${selectedImage})`;
+    } catch (e) {
+      error(e);
+    }
+  }
+  async function fetchVideo() {
+    try {
+      const resp = await fetch("https://randomvideo.vercel.app/randomvideo");
+      const res = await resp.json();
+      insertVideo(res?.src?.video_files[0].link);
+    } catch (e) {
+      error(e);
+    }
   }
   function insertVideo(src) {
     var video = document.getElementById("myVideo");
@@ -45,15 +76,15 @@ const store = chrome.storage.sync;
 })();
 (function () {
   function checkTime(i) {
-    return i < 10 ? "0" + i : i;
+    return i.toString().padStart(2, '0');
   }
   function startTime() {
-    var today = new Date(),
-      h = checkTime(today.getHours()),
-      m = checkTime(today.getMinutes()),
-      s = checkTime(today.getSeconds());
-    let time = h + ":" + m;
-    document.getElementById("time").innerHTML = time;
+    const today = new Date();
+    const h = checkTime(today.getHours());
+    const m = checkTime(today.getMinutes());
+    const s = checkTime(today.getSeconds());
+    const time = `${h}:${m}`;
+    document.getElementById("time").textContent = time;
     setTimeout(function () {
       startTime();
     }, 500);
@@ -98,23 +129,20 @@ insertinDom();
 function insertinDom() {
   document.getElementById(
     "date"
-  ).innerHTML = `${tab.dateDetails.day}, ${tab.dateDetails.month} ${tab.dateDetails.date}`;
+  ).textContent = `${tab.dateDetails.day}, ${tab.dateDetails.month} ${tab.dateDetails.date}`;
 }
 function insertDevicesinDom(devices) {
-  let format =
-    "<span style='font-size: 2vh;padding: 8px;;text-shadow: 0 0 2px gray;'><strong style='font-size: 2vh;text-shadow: 0 0 2px gray;'>DEVICE</strong> > LINK<span>";
-  for (let i = 0; i < devices.length; i++) {
-    let lastSession = devices[i].sessions;
+  for (const device of devices) {
+    let lastSession = device.sessions;
     if (lastSession.length > 0) {
       lastSession = lastSession[0];
       let orgLink = lastSession.window["tabs"][0]["url"];
       let sessionLink = orgLink.substring(0, 20);
-
-      sessionLink = `<a href="${orgLink}" target='_blank' rel='noopenner' style='color:white;text-decoration: none;'>${sessionLink}</a>`;
-
-      let domContent = format.replace("DEVICE", devices[i].deviceName);
-      domContent = domContent.replace("LINK", sessionLink);
-      document.getElementById("device").innerHTML += domContent;
+      document.getElementById("device").appendChild(el('span', {className: 'device'}, [
+        el('strong', {textContent: device.deviceName}),
+        el('span', {textContent: ` > `}),
+        el('a', {href: orgLink, rel: 'noopenner', textContent: sessionLink}),
+      ]));
     }
   }
 }
@@ -122,24 +150,19 @@ async function insertconnectionDetails() {
   const date = new Date();
   const battery = await navigator.getBattery();
   const connection = navigator.onLine
-    ? "~" + navigator.connection.downlink + " Mbps "
+    ? `~${navigator.connection.downlink} Mbps `
     : "Offline ";
-  const batteryHealth =
-    (battery.level * 100).toFixed() +
-    "% " +
-    (battery.charging ? "Charging" : "Battery");
-  document.getElementById(
-    "battery"
-  ).innerHTML = `${connection} - ${batteryHealth}`;
+  const batteryHealth = `${(battery.level * 100).toFixed()}% ${battery.charging ? "Charging" : "Battery"}`;
+  document.getElementById("battery").textContent = `${connection} - ${batteryHealth}`;
   return { connection: connection, battery: batteryHealth };
 }
 function getdateDetails() {
-  var today = new Date();
-  var day = today.getDay();
-  var dd = today.getDate();
-  var mm = today.getMonth();
-  var yyyy = today.getFullYear();
-  var dL = [
+  const today = new Date();
+  const day = today.getDay();
+  const dd = today.getDate();
+  const mm = today.getMonth();
+  const yyyy = today.getFullYear();
+  const dL = [
     "Sunday",
     "Monday",
     "Tuesday",
@@ -148,7 +171,7 @@ function getdateDetails() {
     "Friday",
     "Saturday",
   ];
-  var mL = [
+  const mL = [
     "January",
     "February",
     "March",
@@ -168,16 +191,4 @@ function getdateDetails() {
     date: dd,
     year: yyyy,
   };
-}
-function timeTo12HrFormat(time) {
-  let time_part_array = time.split(":");
-  let ampm = "AM";
-  if (time_part_array[0] >= 12) {
-    ampm = "PM";
-  }
-  if (time_part_array[0] > 12) {
-    time_part_array[0] = time_part_array[0] - 12;
-  }
-  let formatted_time = `${time_part_array[0]}:${time_part_array[1]} <span class="am_pm">${ampm}<span>`;
-  return formatted_time;
 }

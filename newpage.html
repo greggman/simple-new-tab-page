@@ -14,7 +14,8 @@ body, html {
 
 #bgimg {
     height: 100%;
-    background-position: center;
+    background: linear-gradient(220.55deg, #5D85A6 0%, #0E2C5E 100%);
+    background-position: no-repeat;
     background-size: cover;
     position: relative;
     color: white;
@@ -42,9 +43,19 @@ body, html {
   position: absolute;
   top: 95%;
 }
-
-
-
+.device {
+  font-size: 2vh;
+  padding: 8px;
+  text-shadow: 0 0 10px black;
+}
+.device strong {
+  font-size: 2vh;
+  text-shadow: 0 0 10px black;
+}
+.device a {
+  color: white;
+  text-decoration: none;
+}
 #myVideo {
     position: fixed;
     right: 0;
@@ -79,6 +90,20 @@ body, html {
     color: black;
 }
 
+#time {
+  font-size: 20vh;
+  font-weight: 100;
+  text-shadow: 0 0 10px black;
+}
+#date {
+  font-size: 5vh;
+  font-weight: 200;
+  text-shadow: 0 0 10px black;
+}
+#battery {
+  font-size: 3vh;
+  text-shadow: 0 0 10px black;
+}
 
   </style>
 
@@ -88,9 +113,9 @@ body, html {
 <div id="bgimg">
     <video  muted loop id="myVideo"></video>
  <div class="middle">
-    <span style="font-size: 20vh;font-weight: 100;text-shadow: 0 0 2px gray;" id="time"></span><br>
-    <span style=" font-size: 5vh;font-weight: 200;text-shadow: 0 0 2px gray;" id="date"></span><br><br>
-    <span style="font-size: 3vh;text-shadow: 0 0 2px gray;" id="battery"></span>
+    <span id="time"></span><br>
+    <span id="date"></span><br><br>
+    <span id="battery"></span>
   </div>
   <div class="middle bottom" id="device">
   </div>
