@@ -23,7 +23,7 @@ This is a modified fork of https://github.com/kaissaroj/chrome-newtab
 
 ### Considering
 
-* remove the time?
+- [ ] remove the time?
 
   I'm not sure what the point of having the time/date/battery in the middle is.
   The time/date/battery is shown on both windows(bottom right) and mac(top right)
@@ -31,20 +31,20 @@ This is a modified fork of https://github.com/kaissaroj/chrome-newtab
   hand it feels more "designed" with somethign there than just the photo.
   If you have ideas what to replace it with. MOTD?
   
-* Remove other devices?
+- [ ]  Remove other devices?
 
-* Add prefs
+- [ ]  Add prefs
 
   Then you could turn on/off the video and maybe set some other things
   like font or position, choose what to show
 
-* Cache pictures
+- [X]  Cache pictures
 
-  As it is I often get a blank blue tab for a few moments. I could possible
+  ~As it is I often get a blank blue tab for a few moments. I could possible
   download one picture in advance so you get it immediately and then download
-  a new one for next time.
+  a new one for next time.~
   
-* Internationalize the date display
+- [ ] Internationalize the date display
 
   Right now it's English only.
 
