@@ -44,9 +44,9 @@ This is a modified fork of https://github.com/kaissaroj/chrome-newtab
   download one picture in advance so you get it immediately and then download
   a new one for next time.~
   
-- [ ] Internationalize the date display
+- [X] Internationalize the date display
 
-  Right now it's English only.
+  ~Right now it's English only.~
 
 ## Usage
 
