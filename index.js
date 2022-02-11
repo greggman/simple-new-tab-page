@@ -1,57 +1,101 @@
 "use strict";
-(function () {
-  const eventRE = /on([A-Z])(\w+)/;
-  function createElem(tag, attrs = {}) { 
-    const elem = document.createElement(tag);
-    for (const [key, value] of Object.entries(attrs)) {
-      if (typeof value === 'object') {
-        for (const [k, v] of Object.entries(value)) {
-          elem[key][k] = v;
-        }
-      } else if (typeof value === 'function') {
-        const m = eventRE.exec(key);
-        if (!m) {
-          throw new Error('bad event: ${key}');
-        }
-        const eventType = `${m[1].toLowerCase()}${m[2]}`;
-        elem.addEventListener(eventType, value);
-      } else if (key.startsWith('data')) {
-        const k = `${key[4].toLowerCase()}${key.substr(5)}`;
-        elem.dataset[k] = value;
-      } else if (elem[key] === undefined) {
-        elem.setAttribute(key, value);
-      } else {
-        elem[key] = value;
+const settings = {
+  videoOdds: 0,
+};
+
+const eventRE = /on([A-Z])(\w+)/;
+function createElem(tag, attrs = {}) { 
+  const elem = document.createElement(tag);
+  for (const [key, value] of Object.entries(attrs)) {
+    if (typeof value === 'object') {
+      for (const [k, v] of Object.entries(value)) {
+        elem[key][k] = v;
       }
+    } else if (typeof value === 'function') {
+      const m = eventRE.exec(key);
+      if (!m) {
+        throw new Error('bad event: ${key}');
+      }
+      const eventType = `${m[1].toLowerCase()}${m[2]}`;
+      elem.addEventListener(eventType, value);
+    } else if (key.startsWith('data')) {
+      const k = `${key[4].toLowerCase()}${key.substr(5)}`;
+      elem.dataset[k] = value;
+    } else if (elem[key] === undefined) {
+      elem.setAttribute(key, value);
+    } else {
+      elem[key] = value;
     }
-    return elem;
   }
+  return elem;
+}
 
-  function el(tag, attrs = {}, children  = []) {
-    const elem = createElem(tag, attrs);
-    for (const child of children) {
-      elem.appendChild(child);
-    }
-    return elem;
+function el(tag, attrs = {}, children  = []) {
+  const elem = createElem(tag, attrs);
+  for (const child of children) {
+    elem.appendChild(child);
   }
+  return elem;
+}
 
-  //if (Math.random() < 0.5) {
-  //  fetchVideo();
-  //} else {
+function getLocalStorage(keys) {
+  return new Promise(resolve => chrome.storage.local.get(keys, resolve));
+}
+
+function setLocalStorage(obj) {
+  return new Promise(resolve => chrome.storage.local.set(obj, resolve));
+}
+
+async function getRandomImageURL() {
+  const resp = await fetch("https://source.unsplash.com/random/1024x600");
+  return resp.url;
+}
+
+(async function () {
+
+  const useVideo = Math.random() < settings.videoOdds;
+  if (useVideo) {
+    fetchVideo();
+  } else {
     fetchImage();
-  //}
+  }
 
   async function fetchImage() {
+    let imgURL = await getCachedImageURL();
+    if (!imgURL) {
+      imgURL = getRandomImageURL();
+    }
+    const dom = document.getElementById("bgimg");
+    dom.style.backgroundColor = "grey";
+    dom.style.backgroundImage = `url(${imgURL})`;
+ 
+    cacheImageForNextTime();
+  }
+
+  async function getCachedImageURL() {
     try {
-      const resp = await fetch("https://source.unsplash.com/random/1024x600");
-      const selectedImage = resp.url;
-      const dom = document.getElementById("bgimg");
-      dom.style.backgroundColor = "grey";
-      dom.style.backgroundImage = `url(${selectedImage})`;
+      const keys = await getLocalStorage(['imgURL']);
+      if (keys.imgURL) {
+        await setLocalStorage({imgURL: undefined});
+        return keys.imgURL;
+      }
     } catch (e) {
       error(e);
     }
   }
+
+  async function cacheImageForNextTime() {
+    const imgURL = await getRandomImageURL();
+    const img = new Image();
+    img.src = imgURL;
+    try {
+      await img.decode();
+      await setLocalStorage({imgURL});
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   async function fetchVideo() {
     try {
       const resp = await fetch("https://randomvideo.vercel.app/randomvideo");
@@ -73,6 +117,7 @@
     dom.style.backgroundColor = "grey";
   }
 })();
+
 (function () {
   function checkTime(i) {
     return i.toString().padStart(2, '0');
@@ -90,6 +135,7 @@
   }
   startTime();
 })();
+
 class Init {
   constructor() {
     this.batteryconnectionDetails = null;
@@ -113,9 +159,6 @@ class TabAction extends Init {
       this.batteryconnectionDetails = res;
     });
   }
-  setDateDetails() {
-    this.dateDetails = getdateDetails();
-  }
 }
 
 let tab = new TabAction();
@@ -123,12 +166,11 @@ tab.getbatteryconnectionDetails();
 tab.getAllDeviceDetails((devices) => {
   insertDevicesinDom(devices);
 });
-tab.setDateDetails();
 insertinDom();
 function insertinDom() {
   document.getElementById(
     "date"
-  ).textContent = `${tab.dateDetails.day}, ${tab.dateDetails.month} ${tab.dateDetails.date}`;
+  ).textContent = new Intl.DateTimeFormat([], {dateStyle:'long'}).format(new Date())
 }
 function insertDevicesinDom(devices) {
   for (const device of devices) {
@@ -146,7 +188,6 @@ function insertDevicesinDom(devices) {
   }
 }
 async function insertconnectionDetails() {
-  const date = new Date();
   const battery = await navigator.getBattery();
   const connection = navigator.onLine
     ? `~${navigator.connection.downlink} Mbps `
@@ -154,40 +195,4 @@ async function insertconnectionDetails() {
   const batteryHealth = `${(battery.level * 100).toFixed()}% ${battery.charging ? "Charging" : "Battery"}`;
   document.getElementById("battery").textContent = `${connection} - ${batteryHealth}`;
   return { connection: connection, battery: batteryHealth };
-}
-function getdateDetails() {
-  const today = new Date();
-  const day = today.getDay();
-  const dd = today.getDate();
-  const mm = today.getMonth();
-  const yyyy = today.getFullYear();
-  const dL = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  const mL = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  return {
-    day: dL[day],
-    month: mL[mm],
-    date: dd,
-    year: yyyy,
-  };
 }

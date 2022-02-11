@@ -5,7 +5,8 @@
   "version": "0.0.0.1",
   "permissions" : [
       "tabs",
-      "sessions"
+      "sessions",
+      "storage"
   ],
   "chrome_url_overrides" : {
     "newtab": "newpage.html"
