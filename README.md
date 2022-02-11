@@ -2,6 +2,11 @@
 
 A simple new tab page replacement for Google Chrome.
 
+<img width="1796" alt="Screen Shot 2022-02-11 at 02 42 03" src="https://user-images.githubusercontent.com/234804/153578353-e9323848-0a05-45e5-ad1c-6e0952720c6e.png">
+<img width="1796" alt="Screen Shot 2022-02-11 at 02 41 34" src="https://user-images.githubusercontent.com/234804/153578376-2d30fdca-d14d-44fd-be17-1468bf27df4c.png">
+<img width="1796" alt="Screen Shot 2022-02-11 at 02 41 11" src="https://user-images.githubusercontent.com/234804/153578381-c16dceaa-47cb-4ce7-a7ab-26702e4b9b19.png">
+
+
 This is a modified fork of https://github.com/kaissaroj/chrome-newtab
 
 ## Changes
