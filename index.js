@@ -63,7 +63,7 @@ async function getRandomImageURL() {
   async function fetchImage() {
     let imgURL = await getCachedImageURL();
     if (!imgURL) {
-      imgURL = getRandomImageURL();
+      imgURL = await getRandomImageURL();
     }
     const dom = document.getElementById("bgimg");
     dom.style.backgroundColor = "grey";
