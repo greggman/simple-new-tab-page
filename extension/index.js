@@ -1,57 +1,50 @@
-"use strict";
-const settings = {
-  videoOdds: 0,
-};
-
-const eventRE = /on([A-Z])(\w+)/;
-function createElem(tag, attrs = {}) { 
-  const elem = document.createElement(tag);
-  for (const [key, value] of Object.entries(attrs)) {
-    if (typeof value === 'object') {
-      for (const [k, v] of Object.entries(value)) {
-        elem[key][k] = v;
-      }
-    } else if (typeof value === 'function') {
-      const m = eventRE.exec(key);
-      if (!m) {
-        throw new Error('bad event: ${key}');
-      }
-      const eventType = `${m[1].toLowerCase()}${m[2]}`;
-      elem.addEventListener(eventType, value);
-    } else if (key.startsWith('data')) {
-      const k = `${key[4].toLowerCase()}${key.substr(5)}`;
-      elem.dataset[k] = value;
-    } else if (elem[key] === undefined) {
-      elem.setAttribute(key, value);
-    } else {
-      elem[key] = value;
-    }
-  }
-  return elem;
-}
-
-function el(tag, attrs = {}, children  = []) {
-  const elem = createElem(tag, attrs);
-  for (const child of children) {
-    elem.appendChild(child);
-  }
-  return elem;
-}
-
-function getLocalStorage(keys) {
-  return new Promise(resolve => chrome.storage.local.get(keys, resolve));
-}
-
-function setLocalStorage(obj) {
-  return new Promise(resolve => chrome.storage.local.set(obj, resolve));
-}
+import {
+  settings,
+} from './settings.js';
+import {
+  el,
+} from './dom.js';
+import {
+  removeGap,
+} from './gap.js';
+import {
+  getLocalStorage,
+  setLocalStorage,
+  loadSettings,
+  onNewSettings,
+} from './utils.js';
 
 async function getRandomImageURL() {
   const resp = await fetch("https://source.unsplash.com/random/1024x600");
   return resp.url;
 }
 
+function update() {
+  console.log('update', JSON.stringify(settings));
+  document.querySelector('#time').style.display = settings.time ? '' : 'none';
+  document.querySelector('#date').style.display = settings.date ? '' : 'none';
+  document.querySelector('#battery').style.display = settings.battery ? '' : 'none';
+  document.querySelector('#device').style.display = settings.devices ? '' : 'none';
+  const body = document.querySelector('body');
+
+  const hPosition = ['all-left', 'all-center', 'all-right'];
+  const vPosition = ['all-top', 'all-middle', 'all-bottom'];
+
+  body.classList.remove(...hPosition, ...vPosition);
+  body.classList.add(
+      hPosition[settings.hPosition],
+      vPosition[settings.vPosition],
+  );
+
+  const elem = document.querySelector("#time");
+  removeGap(elem);
+}
+
+onNewSettings(update);
+
 (async function () {
+  await loadSettings();
+  update();
 
   const useVideo = Math.random() < settings.videoOdds;
   if (useVideo) {
@@ -65,7 +58,7 @@ async function getRandomImageURL() {
     if (!imgURL) {
       imgURL = await getRandomImageURL();
     }
-    const dom = document.getElementById("bgimg");
+    const dom = document.querySelector("#bgimg");
     dom.style.backgroundColor = "grey";
     dom.style.backgroundImage = `url(${imgURL})`;
  
@@ -106,14 +99,14 @@ async function getRandomImageURL() {
     }
   }
   function insertVideo(src) {
-    var video = document.getElementById("myVideo");
+    var video = document.querySelector("#myVideo");
     var source = document.createElement("source");
     source.setAttribute("src", src);
     video.appendChild(source);
     video.play();
   }
   function error() {
-    let dom = document.getElementById("bgimg");
+    let dom = document.querySelector("#bgimg");
     dom.style.backgroundColor = "grey";
   }
 })();
@@ -127,8 +120,11 @@ async function getRandomImageURL() {
     const h = checkTime(today.getHours());
     const m = checkTime(today.getMinutes());
     const s = checkTime(today.getSeconds());
-    const time = `${h}:${m}`;
-    document.getElementById("time").textContent = time;
+    const time = settings.seconds ? `${h}:${m}:${s}` : `${h}:${m}`;
+    const elem = document.querySelector("#time");
+    elem.textContent = time;
+    removeGap(elem);
+
     setTimeout(function () {
       startTime();
     }, 500);
@@ -138,7 +134,7 @@ async function getRandomImageURL() {
 
 class Init {
   constructor() {
-    this.batteryconnectionDetails = null;
+    this.batteryConnectionDetails = null;
     this.deviceDetails = null;
     this.dateDetails = null;
   }
@@ -153,33 +149,28 @@ class TabAction extends Init {
       callback(res);
     });
   }
-  getbatteryconnectionDetails() {
-    let promise = insertconnectionDetails();
-    promise.then((res) => {
-      this.batteryconnectionDetails = res;
-    });
+  async getBatteryConnectionDetails() {
+    this.batteryConnectionDetails = await insertConnectionDetails();
   }
 }
 
 let tab = new TabAction();
-tab.getbatteryconnectionDetails();
+tab.getBatteryConnectionDetails();
 tab.getAllDeviceDetails((devices) => {
-  insertDevicesinDom(devices);
+  insertDevicesInDom(devices);
 });
-insertinDom();
-function insertinDom() {
-  document.getElementById(
-    "date"
-  ).textContent = new Intl.DateTimeFormat([], {dateStyle:'long'}).format(new Date())
+insertInDom();
+function insertInDom() {
+  document.querySelector("#date").textContent = new Intl.DateTimeFormat([], {dateStyle:'long'}).format(new Date())
 }
-function insertDevicesinDom(devices) {
+function insertDevicesInDom(devices) {
   for (const device of devices) {
     let lastSession = device.sessions;
     if (lastSession.length > 0) {
       lastSession = lastSession[0];
       let orgLink = lastSession.window["tabs"][0]["url"];
       let sessionLink = orgLink.substring(0, 20);
-      document.getElementById("device").appendChild(el('span', {className: 'device'}, [
+      document.querySelector("#device").appendChild(el('span', {className: 'device'}, [
         el('strong', {textContent: device.deviceName}),
         el('span', {textContent: ` > `}),
         el('a', {href: orgLink, rel: 'noopenner', textContent: sessionLink}),
@@ -187,12 +178,12 @@ function insertDevicesinDom(devices) {
     }
   }
 }
-async function insertconnectionDetails() {
+async function insertConnectionDetails() {
   const battery = await navigator.getBattery();
   const connection = navigator.onLine
     ? `~${navigator.connection.downlink} Mbps `
     : "Offline ";
   const batteryHealth = `${(battery.level * 100).toFixed()}% ${battery.charging ? "Charging" : "Battery"}`;
-  document.getElementById("battery").textContent = `${connection} - ${batteryHealth}`;
+  document.querySelector("#battery").textContent = `${connection} - ${batteryHealth}`;
   return { connection: connection, battery: batteryHealth };
 }

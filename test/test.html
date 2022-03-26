@@ -1,0 +1,19 @@
+<div id="controls">
+</div>
+<script type="module">
+import {settings} from '../extension/settings.js';
+import {GUI} from '../extension/gui.js';
+
+const saveSettings = () => {};
+
+const controlsElem = document.querySelector('#controls');
+const gui = new GUI();
+controlsElem.appendChild(gui.elem);
+
+gui.add(settings, 'time').name('Time').onChange(saveSettings);
+gui.add(settings, 'date').name('Date').onChange(saveSettings);
+gui.add(settings, 'battery').name('Battery').onChange(saveSettings);
+gui.add(settings, 'devices').name('Devices').onChange(saveSettings);
+gui.add(settings, 'hPosition', ['Left', 'Middle', 'Right']).onChange(saveSettings);
+gui.add(settings, 'vPosition', ['Top', 'Middle', 'Bottom']).onChange(saveSettings);
+</script>

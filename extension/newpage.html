@@ -10,17 +10,45 @@
 body, html {
     height: 100%;
     margin: 0;
+    overflow: hidden; /* needed because of our negative computed margins to align text */
+}
+
+.all-left { 
+
 }
 
 #bgimg {
     height: 100%;
     background: linear-gradient(220.55deg, #5D85A6 0%, #0E2C5E 100%);
-    background-position: no-repeat;
+    background-position: center;
     background-size: cover;
     position: relative;
+    display: flex;
     color: white;
     font-family: sans-serif;/*-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;*/
 }
+.all-left #bgimg {
+    justify-content: start;
+    text-align: left;
+}
+.all-center #bgimg {
+    justify-content: center;
+    text-align: center;
+}
+.all-right #bgimg {
+    justify-content: end;
+    text-align: right;
+}
+.all-top #bgimg {
+    align-items: start;
+}
+.all-middle #bgimg {
+    align-items: center;
+}
+.all-bottom #bgimg {
+    align-items: end;
+}
+
 .topleft {
     position: absolute;
     top: 0;
@@ -30,11 +58,9 @@ body, html {
 .middle {
     width: 100%;
     position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+    padding: 20px;
 }
+
 .bottom{
   top: 95%;
   font-size: "20px";
@@ -109,13 +135,13 @@ body, html {
 
 </head>
 <body>
-    <script defer src="index.js"></script>
+    <script src="index.js" type="module"></script>
 <div id="bgimg">
     <video  muted loop id="myVideo"></video>
  <div class="middle">
-    <span id="time"></span><br>
-    <span id="date"></span><br><br>
-    <span id="battery"></span>
+    <div id="time"></div>
+    <div id="date"></div><br>
+    <div id="battery"></div>
   </div>
   <div class="middle bottom" id="device">
   </div>
