@@ -1,3 +1,4 @@
+/* eslint-env webextensions */
 import {settings} from './settings.js';
 
 export function getLocalStorage(keys) {
@@ -39,10 +40,10 @@ async function settingsUpdated(newValue) {
   onNewSettingsFn();
 }
 
-chrome.storage.onChanged.addListener(function (changes, namespace) {
-  for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+chrome.storage.onChanged.addListener(function(changes /*, namespace*/) {
+  for (const [key, { newValue }] of Object.entries(changes)) {
     switch (key) {
-      case "settings":
+      case 'settings':
         settingsUpdated(newValue);
     }
   }

@@ -1,3 +1,4 @@
+/* eslint-env webextensions, browser */
 import {
   settings,
 } from './settings.js';
@@ -15,7 +16,7 @@ import {
 } from './utils.js';
 
 async function getRandomImageURL() {
-  const resp = await fetch("https://source.unsplash.com/random/1024x600");
+  const resp = await fetch('https://source.unsplash.com/random/1024x600');
   return resp.url;
 }
 
@@ -29,7 +30,7 @@ function updateTime() {
   const m = formatTime(today.getMinutes());
   const s = formatTime(today.getSeconds());
   const time = settings.seconds ? `${h}:${m}:${s}` : `${h}:${m}`;
-  const elem = document.querySelector("#time");
+  const elem = document.querySelector('#time');
   elem.textContent = time;
   removeGap(elem);
 }
@@ -51,13 +52,13 @@ function update() {
   );
 
   updateTime();
-  const elem = document.querySelector("#time");
+  const elem = document.querySelector('#time');
   removeGap(elem);
 }
 
 onNewSettings(update);
 
-(async function () {
+(async function() {
   await loadSettings();
   update();
 
@@ -73,10 +74,10 @@ onNewSettings(update);
     if (!imgURL) {
       imgURL = await getRandomImageURL();
     }
-    const dom = document.querySelector("#bgimg");
-    dom.style.backgroundColor = "grey";
+    const dom = document.querySelector('#bgimg');
+    dom.style.backgroundColor = 'grey';
     dom.style.backgroundImage = `url(${imgURL})`;
- 
+
     cacheImageForNextTime();
   }
 
@@ -90,6 +91,7 @@ onNewSettings(update);
     } catch (e) {
       error(e);
     }
+    return undefined;
   }
 
   async function cacheImageForNextTime() {
@@ -106,7 +108,7 @@ onNewSettings(update);
 
   async function fetchVideo() {
     try {
-      const resp = await fetch("https://randomvideo.vercel.app/randomvideo");
+      const resp = await fetch('https://randomvideo.vercel.app/randomvideo');
       const res = await resp.json();
       insertVideo(res?.src?.video_files[0].link);
     } catch (e) {
@@ -114,12 +116,12 @@ onNewSettings(update);
     }
   }
   function insertVideo(src) {
-    const video = document.querySelector("#myVideo");
-    const source = document.createElement("source");
-    source.setAttribute("src", src);
+    const video = document.querySelector('#myVideo');
+    const source = document.createElement('source');
+    source.setAttribute('src', src);
     video.addEventListener('playing', () => {
       video.style.opacity = 1;
-    })
+    });
     video.appendChild(source);
     video.play();
 
@@ -134,13 +136,11 @@ onNewSettings(update);
   }
 
   function error() {
-    let dom = document.querySelector("#bgimg");
-    dom.style.backgroundColor = "grey";
+    const dom = document.querySelector('#bgimg');
+    dom.style.backgroundColor = 'grey';
   }
 
-  setInterval(function () {
-    updateTime();
-  }, 500);
+  setInterval(updateTime, 500);
   updateTime();
 })();
 
@@ -167,7 +167,7 @@ class TabAction extends Init {
   }
 }
 
-let tab = new TabAction();
+const tab = new TabAction();
 tab.getBatteryConnectionDetails();
 tab.getAllDeviceDetails((devices) => {
   insertDevicesInDom(devices);
@@ -175,7 +175,7 @@ tab.getAllDeviceDetails((devices) => {
 insertInDom();
 
 function insertInDom() {
-  const elem = document.querySelector("#date");
+  const elem = document.querySelector('#date');
   elem.textContent = new Intl.DateTimeFormat([], { dateStyle:'long' }).format(new Date());
 }
 
@@ -186,7 +186,7 @@ function insertDevicesInDom(devices) {
       lastSession = lastSession[0];
       const tab = lastSession.window.tabs[0];
       const orgLink = tab.title || tab.url;
-      document.querySelector("#device").appendChild(el('div', {className: 'device'}, [
+      document.querySelector('#device').appendChild(el('div', {className: 'device'}, [
         el('div', {className: 'name', textContent: device.deviceName}),
         el('div', {className: 'arrow', textContent: '>'}),
         el('a', {href: orgLink, rel: 'noopenner', textContent: orgLink}),
@@ -200,7 +200,7 @@ async function insertConnectionDetails() {
   const connection = navigator.onLine
       ? `~${navigator.connection.downlink} Mbps `
       : 'Offline ';
-  const batteryHealth = `${(battery.level * 100).toFixed()}% ${battery.charging ? "Charging" : "Battery"}`;
-  document.querySelector("#battery").textContent = `${connection} - ${batteryHealth}`;
+  const batteryHealth = `${(battery.level * 100).toFixed()}% ${battery.charging ? 'Charging' : 'Battery'}`;
+  document.querySelector('#battery').textContent = `${connection} - ${batteryHealth}`;
   return { connection: connection, battery: batteryHealth };
 }
