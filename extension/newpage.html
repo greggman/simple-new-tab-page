@@ -116,10 +116,14 @@ body, html {
     color: black;
 }
 
+#device {
+  background: rgba(255, 0, 0, 0.5);
+}
 #time {
   font-size: 20vh;
   font-weight: 100;
   text-shadow: 0 0 10px black;
+  margin-top: -4vh;
 }
 #date {
   font-size: 5vh;
@@ -130,21 +134,22 @@ body, html {
   font-size: 3vh;
   text-shadow: 0 0 10px black;
 }
-
+video {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
   </style>
-
 </head>
 <body>
-    <script src="index.js" type="module"></script>
-<div id="bgimg">
-    <video  muted loop id="myVideo"></video>
- <div class="middle">
-    <div id="time"></div>
-    <div id="date"></div><br>
-    <div id="battery"></div>
-  </div>
-  <div class="middle bottom" id="device">
-  </div>
+  <script src="newpage.js" type="module"></script>
+  <div id="bgimg">
+    <video muted loop id="myVideo"></video>
+    <div class="middle">
+      <div id="time"></div>
+      <div id="date"></div><br>
+      <div id="battery"></div>
+    </div>
+    <div class="middle bottom" id="device"></div>
   </div>
 </body>
 </html>

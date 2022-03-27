@@ -19,8 +19,22 @@ async function getRandomImageURL() {
   return resp.url;
 }
 
+function formatTime(i) {
+  return i.toString().padStart(2, '0');
+}
+
+function updateTime() {
+  const today = new Date();
+  const h = formatTime(today.getHours());
+  const m = formatTime(today.getMinutes());
+  const s = formatTime(today.getSeconds());
+  const time = settings.seconds ? `${h}:${m}:${s}` : `${h}:${m}`;
+  const elem = document.querySelector("#time");
+  elem.textContent = time;
+  removeGap(elem);
+}
+
 function update() {
-  console.log('update', JSON.stringify(settings));
   document.querySelector('#time').style.display = settings.time ? '' : 'none';
   document.querySelector('#date').style.display = settings.date ? '' : 'none';
   document.querySelector('#battery').style.display = settings.battery ? '' : 'none';
@@ -36,6 +50,7 @@ function update() {
       vPosition[settings.vPosition],
   );
 
+  updateTime();
   const elem = document.querySelector("#time");
   removeGap(elem);
 }
@@ -46,7 +61,7 @@ onNewSettings(update);
   await loadSettings();
   update();
 
-  const useVideo = Math.random() < settings.videoOdds;
+  const useVideo = Math.random() * 100 < settings.videoOdds;
   if (useVideo) {
     fetchVideo();
   } else {
@@ -99,37 +114,34 @@ onNewSettings(update);
     }
   }
   function insertVideo(src) {
-    var video = document.querySelector("#myVideo");
-    var source = document.createElement("source");
+    const video = document.querySelector("#myVideo");
+    const source = document.createElement("source");
     source.setAttribute("src", src);
+    video.addEventListener('playing', () => {
+      video.style.opacity = 1;
+    })
     video.appendChild(source);
     video.play();
+
+    function handleVisibilityChange() {
+      if (document.hidden) {
+        video.pause();
+      } else {
+        video.play();
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
   }
+
   function error() {
     let dom = document.querySelector("#bgimg");
     dom.style.backgroundColor = "grey";
   }
-})();
 
-(function () {
-  function checkTime(i) {
-    return i.toString().padStart(2, '0');
-  }
-  function startTime() {
-    const today = new Date();
-    const h = checkTime(today.getHours());
-    const m = checkTime(today.getMinutes());
-    const s = checkTime(today.getSeconds());
-    const time = settings.seconds ? `${h}:${m}:${s}` : `${h}:${m}`;
-    const elem = document.querySelector("#time");
-    elem.textContent = time;
-    removeGap(elem);
-
-    setTimeout(function () {
-      startTime();
-    }, 500);
-  }
-  startTime();
+  setInterval(function () {
+    updateTime();
+  }, 500);
+  updateTime();
 })();
 
 class Init {
@@ -139,6 +151,7 @@ class Init {
     this.dateDetails = null;
   }
 }
+
 class TabAction extends Init {
   constructor(props) {
     super(props);
@@ -160,9 +173,12 @@ tab.getAllDeviceDetails((devices) => {
   insertDevicesInDom(devices);
 });
 insertInDom();
+
 function insertInDom() {
-  document.querySelector("#date").textContent = new Intl.DateTimeFormat([], {dateStyle:'long'}).format(new Date())
+  const elem = document.querySelector("#date");
+  elem.textContent = new Intl.DateTimeFormat([], { dateStyle:'long' }).format(new Date());
 }
+
 function insertDevicesInDom(devices) {
   for (const device of devices) {
     let lastSession = device.sessions;
@@ -178,11 +194,12 @@ function insertDevicesInDom(devices) {
     }
   }
 }
+
 async function insertConnectionDetails() {
   const battery = await navigator.getBattery();
   const connection = navigator.onLine
-    ? `~${navigator.connection.downlink} Mbps `
-    : "Offline ";
+      ? `~${navigator.connection.downlink} Mbps `
+      : 'Offline ';
   const batteryHealth = `${(battery.level * 100).toFixed()}% ${battery.charging ? "Charging" : "Battery"}`;
   document.querySelector("#battery").textContent = `${connection} - ${batteryHealth}`;
   return { connection: connection, battery: batteryHealth };

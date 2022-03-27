@@ -21,9 +21,9 @@ async function main() {
   gui.add(settings, 'date').name('Date').onChange(saveSettings);
   gui.add(settings, 'battery').name('Battery').onChange(saveSettings);
   gui.add(settings, 'devices').name('Devices').onChange(saveSettings);
-  gui.add(settings, 'hPosition', ['Left', 'Middle', 'Right']).onChange(saveSettings);
+  gui.add(settings, 'hPosition', ['Left', 'Center', 'Right']).onChange(saveSettings);
   gui.add(settings, 'vPosition', ['Top', 'Middle', 'Bottom']).onChange(saveSettings);
-  //gui.add(settings, 'video').name('Allow Video').onChange(saveSettings);
+  gui.add(settings, 'videoOdds', 0, 100).name('Video%:').onChange(saveSettings);
 }
 
 main();

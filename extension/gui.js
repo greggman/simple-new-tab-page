@@ -32,6 +32,40 @@ class Control {
   }
 }
 
+class Slider extends Control {
+  constructor(obj, prop, min, max, step) {
+    super(obj, prop);
+    const id = getId();
+    const that = this;
+    this.inputElem = el('input', {
+      id,
+      min,
+      max,
+      step: step || '1',
+      type: 'range', 
+      value: obj[prop],
+      onInput: function() {
+        console.log(`${prop}: ${this.value}`);
+        obj[prop] = parseFloat(this.value);
+        that.valueElem.textContent = this.value;
+        that.changed();
+      },
+    });
+    this.labelElem = el('label', {for: id, textContent: prop}),
+    this.valueElem = el('div',{textContent: obj[prop]}),
+    this.elem.classList.add('slider');
+    this.elem.appendChild(this.inputElem);
+    this.elem.appendChild(this.labelElem);
+    this.elem.appendChild(this.valueElem);
+  }
+  set(v) {
+    super.set(v);
+    const value = this.get();
+    this.inputElem.value = value;
+    this.valueElem.textContent = value;
+  }
+}
+
 class Checkbox extends Control {
   constructor(obj, prop) {
     super(obj, prop);
@@ -96,6 +130,8 @@ class Radio extends Control {
   }
 }
 
+
+
 function createControl(obj, prop, a1, a2, a3) {
   const v = obj[prop];
   if (typeof v === 'boolean') {
@@ -117,7 +153,7 @@ function createControl(obj, prop, a1, a2, a3) {
       if (typeof a3 === 'number') {
         step = a3;
       }
-      // return new Slider(obj, prop, min, max, step)
+      return new Slider(obj, prop, min, max, step)
     }
   } else {
     throw new Error('unhandled type');

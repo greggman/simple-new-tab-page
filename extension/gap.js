@@ -12,14 +12,31 @@ function isColumnEmpty(pixels, width, height, x) {
   return true;
 }
 
+function isRowEmpty(pixels, width, y) {
+  for (let x = 0; x < width; ++x) {
+    const offset = y * width + x;
+    if (pixels[offset]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function getGap(element) {
   const style = window.getComputedStyle(element);
-  const left = style.textAlign === 'left' || !style.textAlign;
-  const right = style.textAlign === 'right';
+  const left =
+      style.textAlign === 'left' || 
+      (style.textAlign === 'start' && style.direction === 'ltr') ||
+      (style.textAlign === 'end' && style.direction === 'rtl');
+  const right =
+      style.textAlign === 'right' ||
+      (style.textAlign === 'start' && style.direction === 'rtl') ||
+      (style.textAlign === 'end' && style.direction === 'ltr');
   const font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
   const text = element.textContent;
   const width = 128;
-  const height = element.clientHeight;
+  const extra = 32;
+  const height = element.clientHeight + extra * 2;
   const char = right
       ? text.substring(text.length - 1, text.length)
       : text.substring(0, 1);
@@ -35,7 +52,7 @@ export function getGap(element) {
       ctx.font = font;
       ctx.textAlign = right ? 'right' : 'left';
 
-      ctx.fillText(text, right ? width - 1 : 0, height);
+      ctx.fillText(text, right ? width - 1 : 0, height + extra);
 
       const imgData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
       const pixels = new Uint32Array(imgData.data.buffer);
@@ -52,7 +69,6 @@ export function getGap(element) {
       }
 
       gap = (start - x) * delta / dpr;
-      console.log(gap, key);
     }
     cache.set(key, gap);
   }

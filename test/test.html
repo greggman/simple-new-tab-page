@@ -1,3 +1,4 @@
+<link href="../extension/popup.css" rel="stylesheet">
 <div id="controls">
 </div>
 <script type="module">
@@ -16,4 +17,5 @@ gui.add(settings, 'battery').name('Battery').onChange(saveSettings);
 gui.add(settings, 'devices').name('Devices').onChange(saveSettings);
 gui.add(settings, 'hPosition', ['Left', 'Middle', 'Right']).onChange(saveSettings);
 gui.add(settings, 'vPosition', ['Top', 'Middle', 'Bottom']).onChange(saveSettings);
+gui.add(settings, 'videoOdds', 0, 100).name('Video %').onChange(saveSettings);
 </script>
