@@ -184,12 +184,12 @@ function insertDevicesInDom(devices) {
     let lastSession = device.sessions;
     if (lastSession.length > 0) {
       lastSession = lastSession[0];
-      let orgLink = lastSession.window["tabs"][0]["url"];
-      let sessionLink = orgLink.substring(0, 20);
-      document.querySelector("#device").appendChild(el('span', {className: 'device'}, [
-        el('strong', {textContent: device.deviceName}),
-        el('span', {textContent: ` > `}),
-        el('a', {href: orgLink, rel: 'noopenner', textContent: sessionLink}),
+      const tab = lastSession.window.tabs[0];
+      const orgLink = tab.title || tab.url;
+      document.querySelector("#device").appendChild(el('div', {className: 'device'}, [
+        el('div', {className: 'name', textContent: device.deviceName}),
+        el('div', {className: 'arrow', textContent: '>'}),
+        el('a', {href: orgLink, rel: 'noopenner', textContent: orgLink}),
       ]));
     }
   }

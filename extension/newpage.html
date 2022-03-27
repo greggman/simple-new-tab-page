@@ -1,64 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>New Tab</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Tab</title>
 <style>
 
-
-body, html {
-    height: 100%;
-    margin: 0;
-    overflow: hidden; /* needed because of our negative computed margins to align text */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
-.all-left { 
+html, body {
+  height: 100%;
+}
 
+body, html {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* needed because of our negative computed margins to align text */
 }
 
 #bgimg {
-    height: 100%;
-    background: linear-gradient(220.55deg, #5D85A6 0%, #0E2C5E 100%);
-    background-position: center;
-    background-size: cover;
-    position: relative;
-    display: flex;
-    color: white;
-    font-family: sans-serif;/*-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;*/
+  height: 100%;
+  background: linear-gradient(220.55deg, #4a3cc5 0%, #0E2C5E 100%);
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  color: white;
+  font-family: sans-serif;/*-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;*/
 }
-.all-left #bgimg {
-    justify-content: start;
-    text-align: left;
+.all-left #top {
+  justify-content: start;
+  text-align: left;
 }
-.all-center #bgimg {
-    justify-content: center;
-    text-align: center;
+.all-center #top {
+  justify-content: center;
+  text-align: center;
 }
-.all-right #bgimg {
-    justify-content: end;
-    text-align: right;
+.all-right #top {
+  justify-content: end;
+  text-align: right;
 }
-.all-top #bgimg {
-    align-items: start;
+.all-top #top {
+  align-items: start;
 }
-.all-middle #bgimg {
-    align-items: center;
+.all-middle #top {
+  align-items: center;
 }
-.all-bottom #bgimg {
-    align-items: end;
+.all-bottom #top {
+  align-items: end;
 }
 
 .topleft {
-    position: absolute;
-    top: 0;
-    left: 16px;
+  position: absolute;
+  top: 0;
+  left: 16px;
 }
 
 .middle {
-    width: 100%;
-    position: absolute;
-    padding: 20px;
 }
 
 .bottom{
@@ -69,61 +71,90 @@ body, html {
   position: absolute;
   top: 95%;
 }
+
+#myVideo {
+  display: block;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+#content {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+#content>div {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 20px;
+}
+#top {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+}
+#bottom {
+  flex: 0 0 auto;
+}
+
+.all-left #device {
+  text-align: left;
+}
+.all-center #device {
+  text-align: center;
+}
+.all-right #device {
+  text-align: right;
+}
+#device {
+  margin-top: 1em;
+}
 .device {
   font-size: 2vh;
-  padding: 8px;
   text-shadow: 0 0 10px black;
+}
+.device>* {
+  vertical-align: middle;
 }
 .device strong {
   font-size: 2vh;
-  text-shadow: 0 0 10px black;
 }
 .device a {
   color: white;
   text-decoration: none;
+  max-width: 50%;
+  text-overflow: ellipsis;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
 }
-#myVideo {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    min-width: 100%;
-    min-height: 100%;
+.device .name {
+  font-weight: bold;
+  display: inline-block;
 }
-
-/* Add some content at the bottom of the video/page */
-.content {
-    position: fixed;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    color: #f1f1f1;
-    width: 100%;
-    padding: 20px;
+.device .arrow {
+  display: inline-block;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
 }
 
-/* Style the button used to pause/play the video */
-#myBtn {
-    width: 200px;
-    font-size: 18px;
-    padding: 10px;
-    border: none;
-    background: #000;
-    color: #fff;
-    cursor: pointer;
-}
-
-#myBtn:hover {
-    background: #ddd;
-    color: black;
-}
-
-#device {
-  background: rgba(255, 0, 0, 0.5);
-}
 #time {
   font-size: 20vh;
   font-weight: 100;
   text-shadow: 0 0 10px black;
   margin-top: -4vh;
+  margin-bottom: -2vh;
 }
 #date {
   font-size: 5vh;
@@ -144,12 +175,18 @@ video {
   <script src="newpage.js" type="module"></script>
   <div id="bgimg">
     <video muted loop id="myVideo"></video>
-    <div class="middle">
-      <div id="time"></div>
-      <div id="date"></div><br>
-      <div id="battery"></div>
+    <div id="content">
+      <div>
+        <div id="top">
+          <div class="middle">
+            <div id="time"></div>
+            <div id="date"></div><br>
+            <div id="battery"></div>
+          </div>
+         </div>
+        <div id="bottom"><div id="device"></div></div>
+      </div>
     </div>
-    <div class="middle bottom" id="device"></div>
   </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-# Chrome Newtab
+# Simple New Tab Page
 
 A simple new tab page replacement for Google Chrome.
 
@@ -23,17 +23,17 @@ This is a modified fork of https://github.com/kaissaroj/chrome-newtab
 
 ### Considering
 
-- [ ] remove the time?
+- [X] remove the time?
 
   I'm not sure what the point of having the time/date/battery in the middle is.
   The time/date/battery is shown on both windows(bottom right) and mac(top right)
   at all times so not much point in having it on the new-tab-page. On the other 
-  hand it feels more "designed" with somethign there than just the photo.
+  hand it feels more "designed" with something there than just the photo.
   If you have ideas what to replace it with. MOTD?
   
-- [ ]  Remove other devices?
+- [X]  Remove other devices?
 
-- [ ]  Add prefs
+- [X]  Add prefs
 
   Then you could turn on/off the video and maybe set some other things
   like font or position, choose what to show
@@ -53,7 +53,7 @@ This is a modified fork of https://github.com/kaissaroj/chrome-newtab
 <h3>Process to install in Google Chrome as extension : </h3>
 <ul>
 <li> Open Terminal</li>
-<li> git clone https://github.com/greggman/chrome-newtab.git </li>
+<li> git clone https://github.com/greggman/simple-new-tab-page.git </li>
 <li> OR just download from Download Zip Option </li>
 <li>Copy this link  <strong>chrome://extensions/</strong> and paste in Chrome</li>
 <li>Enable Developer Mode and click <strong>Load unpacked extension</strong> button and upload the folder</li>

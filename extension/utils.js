@@ -35,7 +35,6 @@ export function onNewSettings(fn) {
 }
 
 async function settingsUpdated(newValue) {
-  console.log(JSON.stringify(newValue))
   updateSettings(newValue);
   onNewSettingsFn();
 }

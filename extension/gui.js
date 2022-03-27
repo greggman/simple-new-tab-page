@@ -45,7 +45,6 @@ class Slider extends Control {
       type: 'range', 
       value: obj[prop],
       onInput: function() {
-        console.log(`${prop}: ${this.value}`);
         obj[prop] = parseFloat(this.value);
         that.valueElem.textContent = this.value;
         that.changed();

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Simple Blank Tab",
-  "description": "Blank Tab",
+  "name": "Simple New Tab Page",
+  "description": "Show a random image/video and the time/date on your new tab page  ",
   "version": "0.0.0.1",
   "permissions" : [
       "tabs",
