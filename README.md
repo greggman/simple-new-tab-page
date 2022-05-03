@@ -6,6 +6,8 @@ A simple new tab page replacement for Google Chrome.
 <img width="1796" alt="Screen Shot 2022-02-11 at 02 41 34" src="https://user-images.githubusercontent.com/234804/153578376-2d30fdca-d14d-44fd-be17-1468bf27df4c.png">
 <img width="1796" alt="Screen Shot 2022-02-11 at 02 41 11" src="https://user-images.githubusercontent.com/234804/153578381-c16dceaa-47cb-4ce7-a7ab-26702e4b9b19.png">
 
+You can install it [from the chrome store](https://chrome.google.com/webstore/detail/simple-new-tab-page/bcolmammcoaoobfefeidagdbijgidgla)
+or see below how to install manually.
 
 This is a modified fork of https://github.com/kaissaroj/chrome-newtab
 
@@ -50,13 +52,12 @@ This is a modified fork of https://github.com/kaissaroj/chrome-newtab
 
 ## Usage
 
-<h3>Process to install in Google Chrome as extension : </h3>
-<ul>
-<li> Open Terminal</li>
-<li> git clone https://github.com/greggman/simple-new-tab-page.git </li>
-<li> OR just download from Download Zip Option </li>
-<li>Copy this link  <strong>chrome://extensions/</strong> and paste in Chrome</li>
-<li>Enable Developer Mode and click <strong>Load unpacked extension</strong> button and upload the folder</li>
-<li>Done.</li>
-</ul>
+You can install it [from the chrome store](https://chrome.google.com/webstore/detail/simple-new-tab-page/bcolmammcoaoobfefeidagdbijgidgla) or install manually:
 
+### Process to install in Google Chrome as extension: 
+
+* Open Terminal/Command Prompt
+* `git clone https://github.com/greggman/simple-new-tab-page.git`
+   OR [download the zip](https://github.com/greggman/simple-new-tab-page/archive/refs/heads/main.zip) and unzip it.
+* Copy this link  `chrome://extensions/` and paste in Chrome
+* Enable Developer Mode and click `Load unpacked extension` button and select the extension folder.
