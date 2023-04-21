@@ -9,15 +9,28 @@ import {
   removeGap,
 } from './gap.js';
 import {
-  getLocalStorage,
-  setLocalStorage,
   loadSettings,
   onNewSettings,
 } from './utils.js';
 
+function randomElem(array) {
+  const ndx = Math.random() * array.length | 0;
+  return array[ndx];
+}
+
 async function getRandomImageURL() {
-  const resp = await fetch('https://source.unsplash.com/random/1024x600');
-  return resp.url;
+  const keywords = settings.keywords.split(/\s+|,/);
+  const keyword = randomElem(keywords);
+  return `https://loremflickr.com/1024/720/${keyword}`;//,vista,architechture,food';
+
+  // unsplash died?
+  //const resp = await fetch('https://source.unsplash.com/random/1024x600');
+  // return resp.url;
+
+  // no cors?
+  // const resp = await fetch('https://loremflickr.com/json/1024/720/');
+  // const json = await resp.json();
+  // return json.file;
 }
 
 function formatTime(i) {
@@ -81,12 +94,34 @@ onNewSettings(update);
     cacheImageForNextTime();
   }
 
+  async function getLocalStorage(keys) {
+    const obj = {};
+    for (const key of keys) {
+      obj[key] = localStorage.getItem(key);
+    }
+    return obj;
+  }
+
+  async function setLocalStorage(keyValues) {
+    for (const [k, v] of Object.entries(keyValues)) {
+      if (v instanceof Blob) {
+        const fr = new FileReader();
+        fr.onload = function(e) {
+            localStorage.setItem(k, e.target.result);
+        }
+        fr.readAsDataURL(v);
+      } else {
+        localStorage.setItem(k, v);
+      }
+    }
+  }
+
   async function getCachedImageURL() {
     try {
-      const keys = await getLocalStorage(['imgURL']);
-      if (keys.imgURL) {
-        await setLocalStorage({imgURL: undefined});
-        return keys.imgURL;
+      const keys = await getLocalStorage(['img']);
+      const dataURL = keys.img;
+      if (dataURL) {
+        return dataURL;
       }
     } catch (e) {
       error(e);
@@ -96,11 +131,14 @@ onNewSettings(update);
 
   async function cacheImageForNextTime() {
     const imgURL = await getRandomImageURL();
-    const img = new Image();
-    img.src = imgURL;
     try {
+      const res = await fetch(imgURL);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.src = url;
       await img.decode();
-      await setLocalStorage({imgURL});
+      await setLocalStorage({img: blob});
     } catch (e) {
       console.error(e);
     }

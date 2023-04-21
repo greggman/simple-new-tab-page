@@ -1,11 +1,11 @@
 /* eslint-env webextensions */
 import {settings} from './settings.js';
 
-export function getLocalStorage(keys) {
+export function getExtensionLocalStorage(keys) {
   return new Promise(resolve => chrome.storage.local.get(keys, resolve));
 }
 
-export function setLocalStorage(obj) {
+export function setExtensionLocalStorage(obj) {
   return new Promise(resolve => chrome.storage.local.set(obj, resolve));
 }
 
@@ -18,14 +18,14 @@ function updateSettings(newSettings) {
 }
 
 export async function loadSettings() {
-  const keys = await getLocalStorage(['settings']);
+  const keys = await getExtensionLocalStorage(['settings']);
   if (keys && keys.settings) {
     updateSettings(keys.settings);
   }
 }
 
 export function saveSettings() {
-  setLocalStorage({settings});
+  setExtensionLocalStorage({settings});
 }
 
 let onNewSettingsFn = () => {};

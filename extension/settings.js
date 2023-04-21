@@ -7,6 +7,8 @@ const defaultSettings = {
   hPosition: 1,
   vPosition: 1,
   videoOdds: 0,
+  sources: ['picsum.photos', 'loremflickr'],
+  keywords: 'airplane,car,shoes,dogs,vistas,art,fashion,design,architecture,travel,scenery',
 };
 
 export const settings = {...defaultSettings};

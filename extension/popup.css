@@ -46,6 +46,12 @@ button.current {
               0 0 0 4px black;
 }
 
+.full-width {
+  width: 100%;
+}
+fieldset {
+  border: 1px solid gray;
+}
 .radio {
   display: flex;
   border: 1px solid gray;

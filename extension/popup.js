@@ -2,8 +2,8 @@ import {
   settings,
 } from './settings.js';
 import {
-  getLocalStorage,
-  setLocalStorage,
+  getExtensionLocalStorage,
+  setExtensionLocalStorage,
   loadSettings,
   saveSettings,
 } from './utils.js';
@@ -24,6 +24,8 @@ async function main() {
   gui.add(settings, 'hPosition', ['Left', 'Center', 'Right']).onChange(saveSettings);
   gui.add(settings, 'vPosition', ['Top', 'Middle', 'Bottom']).onChange(saveSettings);
   gui.add(settings, 'videoOdds', 0, 100).name('Video%:').onChange(saveSettings);
+  //gui.add(settings, 'sources', ['picsum.photos', 'loremflickr']).onChange(saveSettings);
+  gui.add(settings, 'keywords').onChange(saveSettings);
 }
 
 main();

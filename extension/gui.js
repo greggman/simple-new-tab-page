@@ -129,11 +129,65 @@ class Radio extends Control {
   }
 }
 
+class Text extends Control {
+  constructor(obj, prop, options) {
+    super(obj, prop);
+    const that = this;
 
+    const input = el('input', {
+      type: 'text',
+      className: 'full-width',
+      value: obj[prop],
+      onChange: function() {
+        obj[prop] = value;
+        that.changed();
+      },
+    });
+    const div = el('fieldset', {className: 'text'}, [
+      el('legend', {textContent: prop}),
+      input,
+    ]);
+    this.elem.appendChild(div);
+  }
+  set(v) {
+    super.set(v);
+    input.value = v;
+  }
+}
+
+class MultiSelect extends Control {
+  constructor(obj, prop, options) {
+    super(obj, prop);
+    const that = this;
+    const settings = Object.fromEntries(options.map(k => [k, obj[prop].includes(k)]));
+    const update = () => {
+      obj[prop].length = 0;
+      for (const [k, v] of settings) {
+        if (v) {
+          obj[prop].push(k);
+        }
+      }
+    }
+
+    const div = el('fieldset', {className: 'text'}, [
+      el('legend', {textContent: prop}),
+      ...Object.keys(settings).map(k =>
+        new Checkbox(settings, k).onChange(update).elem)
+    ]);
+
+    this.elem.appendChild(div);
+  }
+  set(v) {
+    super.set(v);
+    input.value = v;
+  }
+}
 
 function createControl(obj, prop, a1, a2, a3) {
   const v = obj[prop];
-  if (typeof v === 'boolean') {
+  if (Array.isArray(v)) {
+    return new MultiSelect(obj, prop, a1);
+  } else if (typeof v === 'boolean') {
     return new Checkbox(obj, prop);
   } else if (typeof v === 'number') {
     if (Array.isArray(a1) || typeof a1 === 'object') {
@@ -154,6 +208,8 @@ function createControl(obj, prop, a1, a2, a3) {
       }
       return new Slider(obj, prop, min, max, step)
     }
+  } else if (typeof v === 'string') {
+    return new Text(obj, prop);
   } else {
     throw new Error('unhandled type');
   }
