@@ -69,7 +69,10 @@ function update() {
   removeGap(elem);
 }
 
-onNewSettings(update);
+onNewSettings(() => {
+  update();
+  setLocalStorage({img: ''});
+});
 
 (async function() {
   await loadSettings();

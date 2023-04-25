@@ -138,8 +138,8 @@ class Text extends Control {
       type: 'text',
       className: 'full-width',
       value: obj[prop],
-      onChange: function() {
-        obj[prop] = value;
+      onInput: function() {
+        obj[prop] = input.value;
         that.changed();
       },
     });
