@@ -18,10 +18,29 @@ function randomElem(array) {
   return array[ndx];
 }
 
+async function getRandomImage() {
+  const numImages = 94979;
+  const numPerSlice = 50;
+  const id = numImages * Math.random() | 0;
+  const sliceId = (id / numPerSlice | 0).toString().padStart(5, '0');
+  const parts = /^(\d+)(\d)(\d)(\d)(\d)$/.exec(sliceId).slice(1);
+  const file = `${parts.pop()}.json`;
+  const url = ['https://random-image.org', 'images', ...parts, file].join('/');
+  const res = await fetch(url);
+  const slice = await res.json();
+  const data = slice[id % numPerSlice];
+  if (data.url.includes('flickr.com')) {
+    data.url = data.url.replace(/_[a-z]\.jpg/, '_b.jpg');
+  }
+  return data;
+}
+
 async function getRandomImageURL() {
-  const keywords = settings.keywords.split(/\s+|,/);
-  const keyword = randomElem(keywords);
-  return `https://loremflickr.com/1024/720/${keyword}`;//,vista,architechture,food';
+  const data = await getRandomImage();
+  return data.url;
+  //const keywords = settings.keywords.split(/\s+|,/);
+  //const keyword = randomElem(keywords);
+  //return `https://loremflickr.com/1024/720/${keyword}`;//,vista,architechture,food';
 
   // unsplash died?
   //const resp = await fetch('https://source.unsplash.com/random/1024x600');
