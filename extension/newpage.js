@@ -75,8 +75,19 @@ function randomElem(array) {
 // https://flickr.com/photo.gne?id=52891507238
 // live.staticflickr.com/65535/52891507238_7eb2b36210_n.jpg
 
-async function getRandomImageData() {
-  const numImages = 94979;
+function looksLikeFilename(s) {
+  const hasCommonPunctuation = s.includes('-') || s.includes('_') || s.includes('#');
+  const hasLetters = /[a-z]/i.test(s);
+  const hasNumbers = /[0-9]/i.test(s);
+  const hasSpace = s.includes(' ');
+  const hasExtension = /\.\w+$/.test(s);
+  return hasExtension ||
+    (hasCommonPunctuation && !hasSpace) ||
+    ((hasLetters && hasNumbers) && !hasSpace);
+}
+
+async function getRandomImageData(numImages) {
+  numImages = numImages || 94979;
   const numPerSlice = 50;
   const id = numImages * Math.random() | 0;
   const sliceId = (id / numPerSlice | 0).toString().padStart(5, '0');
@@ -88,9 +99,11 @@ async function getRandomImageData() {
   const data = slice[id % numPerSlice];
   if (data.url.includes('flickr.com')) {
     data.url = data.url.replace(/_[a-z]\.jpg/, '_b.jpg');
-    const m = /\/(\d+)_[a-z0-9]+_.\.jpg$/.exec(data.url);
-    if (m) {
-      data.imgLink = `https://flickr.com/photo.gne?id=${m[1]}`;
+    if (!data.imgLink) {
+      const m = /\/(\d+)_[a-z0-9]+_.\.jpg$/.exec(data.url);
+      if (m) {
+        data.imgLink = `https://flickr.com/photo.gne?id=${m[1]}`;
+      }
     }
   }
   return data;
@@ -232,7 +245,7 @@ onNewSettings(() => {
     imgHeight = img.naturalHeight;
     update();
 
-    title.textContent = data.desc || '';
+    title.textContent = looksLikeFilename(data.desc) ? '' : data.desc || '';
     title.href = data.imgLink || '';
     user.textContent = data.user || '';
     user.href = data.link || '';
@@ -258,7 +271,16 @@ onNewSettings(() => {
   }
 
   async function cacheImageForNextTime() {
-    const data = await getRandomImageData();
+    let numImages;
+    try {
+      const resp = await fetch('https://random-image.org/num-images.json');
+      const data = await resp.json();
+      numImages = data.numImages;
+    } catch (e) {
+      //
+    }
+
+    const data = await getRandomImageData(numImages);
     try {
       const res = await fetch(data.url);
       const blob = await res.blob();
