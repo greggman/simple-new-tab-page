@@ -65,10 +65,15 @@ observer.observe(gl.canvas);
 //   gl.canvas.style.display = !!gl.canvas.style.display ? '' : 'none';
 // }, 1000);
 
+/*
 function randomElem(array) {
   const ndx = Math.random() * array.length | 0;
   return array[ndx];
 }
+*/
+
+// https://flickr.com/photo.gne?id=52891507238
+// live.staticflickr.com/65535/52891507238_7eb2b36210_n.jpg
 
 async function getRandomImageData() {
   const numImages = 94979;
@@ -83,6 +88,10 @@ async function getRandomImageData() {
   const data = slice[id % numPerSlice];
   if (data.url.includes('flickr.com')) {
     data.url = data.url.replace(/_[a-z]\.jpg/, '_b.jpg');
+    const m = /\/(\d+)_[a-z0-9]+_.\.jpg$/.exec(data.url);
+    if (m) {
+      data.imgLink = `https://flickr.com/photo.gne?id=${m[1]}`;
+    }
   }
   return data;
 }
@@ -174,7 +183,7 @@ async function setLocalStorage(keyValues) {
       const fr = new FileReader();
       fr.onload = function(e) {
           localStorage.setItem(k, e.target.result);
-      }
+      };
       fr.readAsDataURL(v);
     } else {
       localStorage.setItem(k, v);
@@ -210,6 +219,8 @@ onNewSettings(() => {
 
     const title = document.querySelector('#title');
     const user = document.querySelector('#user');
+
+    // --- fix VVV---
     title.textContent = data.desc;
     user.textContent = data.user;
     user.href = data.link;
@@ -220,6 +231,13 @@ onNewSettings(() => {
     imgWidth = img.naturalWidth;
     imgHeight = img.naturalHeight;
     update();
+
+    title.textContent = data.desc || '';
+    title.href = data.imgLink || '';
+    user.textContent = data.user || '';
+    user.href = data.link || '';
+
+    // fix -- ^^^ --
 
     cacheImageForNextTime();
   }
