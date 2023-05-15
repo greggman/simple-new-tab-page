@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>New Tab</title>
 <style>
-
+:root {
+  --padding: 20px;
+}
 html {
   box-sizing: border-box;
 }
@@ -97,7 +99,7 @@ body, html {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: 20px;
+  padding: var(--padding);
 }
 #top {
   flex: 1 1 auto;
@@ -169,6 +171,34 @@ video {
   opacity: 0;
   transition: opacity 0.5s;
 }
+#info {
+  position: absolute;
+  text-shadow: 0 0 10px black;
+  text-align: center;
+}
+#info a {
+  color: white;
+  text-decoration: none;
+}
+#info.center {
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+#info.left {
+  left: var(--padding);
+  text-align: left;
+}
+#info.right {
+  right: var(--padding);
+  text-align: right;
+}
+#info.top {
+  top: var(--padding);
+}
+#info.bottom {
+  bottom: var(--padding);
+}
   </style>
 </head>
 <body>
@@ -186,6 +216,10 @@ video {
          </div>
         <div id="bottom"><div id="device"></div></div>
       </div>
+    </div>
+    <div id="info">
+      <div id="title"></div>
+      <a id="user"></a>
     </div>
   </div>
 </body>

@@ -18,7 +18,7 @@ function randomElem(array) {
   return array[ndx];
 }
 
-async function getRandomImage() {
+async function getRandomImageData() {
   const numImages = 94979;
   const numPerSlice = 50;
   const id = numImages * Math.random() | 0;
@@ -35,6 +35,7 @@ async function getRandomImage() {
   return data;
 }
 
+/*
 async function getRandomImageURL() {
   const data = await getRandomImage();
   return data.url;
@@ -51,6 +52,7 @@ async function getRandomImageURL() {
   // const json = await resp.json();
   // return json.file;
 }
+*/
 
 function formatTime(i) {
   return i.toString().padStart(2, '0');
@@ -76,6 +78,12 @@ function update() {
 
   const hPosition = ['all-left', 'all-center', 'all-right'];
   const vPosition = ['all-top', 'all-middle', 'all-bottom'];
+  const infoCSS = [
+    //     left                  center              right
+    [ ['right', 'bottom'], ['center', 'bottom'], ['left', 'bottom'] ],   // top
+    [ ['left',  'top'   ], ['center', 'top'   ], ['right', 'top'  ] ],   // middle
+    [ ['left',  'top'   ], ['center', 'top',  ], ['right', 'top'  ] ],   // bottom
+  ];
 
   body.classList.remove(...hPosition, ...vPosition);
   body.classList.add(
@@ -83,14 +91,40 @@ function update() {
       vPosition[settings.vPosition],
   );
 
+  const info = document.querySelector('#info');
+  info.classList.remove(...infoCSS.flat().flat());
+  info.classList.add(...infoCSS[settings.vPosition][settings.hPosition]);
+
   updateTime();
   const elem = document.querySelector('#time');
   removeGap(elem);
 }
 
+async function getLocalStorage(keys) {
+  const obj = {};
+  for (const key of keys) {
+    obj[key] = localStorage.getItem(key);
+  }
+  return obj;
+}
+
+async function setLocalStorage(keyValues) {
+  for (const [k, v] of Object.entries(keyValues)) {
+    if (v instanceof Blob) {
+      const fr = new FileReader();
+      fr.onload = function(e) {
+          localStorage.setItem(k, e.target.result);
+      }
+      fr.readAsDataURL(v);
+    } else {
+      localStorage.setItem(k, v);
+    }
+  }
+}
+
 onNewSettings(() => {
   update();
-  setLocalStorage({img: ''});
+  setLocalStorage({img: '', data: '{}'});
 });
 
 (async function() {
@@ -105,45 +139,32 @@ onNewSettings(() => {
   }
 
   async function fetchImage() {
-    let imgURL = await getCachedImageURL();
-    if (!imgURL) {
-      imgURL = await getRandomImageURL();
+    let data = await getCachedImageData();
+    if (!data) {
+      data = await getRandomImageData();
     }
+    const imgURL = data.url;
     const dom = document.querySelector('#bgimg');
     dom.style.backgroundColor = 'grey';
     dom.style.backgroundImage = `url(${imgURL})`;
 
+    const title = document.querySelector('#title');
+    const user = document.querySelector('#user');
+    title.textContent = data.desc;
+    user.textContent = data.user;
+    user.href = data.link
+
     cacheImageForNextTime();
   }
 
-  async function getLocalStorage(keys) {
-    const obj = {};
-    for (const key of keys) {
-      obj[key] = localStorage.getItem(key);
-    }
-    return obj;
-  }
-
-  async function setLocalStorage(keyValues) {
-    for (const [k, v] of Object.entries(keyValues)) {
-      if (v instanceof Blob) {
-        const fr = new FileReader();
-        fr.onload = function(e) {
-            localStorage.setItem(k, e.target.result);
-        }
-        fr.readAsDataURL(v);
-      } else {
-        localStorage.setItem(k, v);
-      }
-    }
-  }
-
-  async function getCachedImageURL() {
+  async function getCachedImageData() {
     try {
-      const keys = await getLocalStorage(['img']);
+      const keys = await getLocalStorage(['data', 'img']);
       const dataURL = keys.img;
       if (dataURL) {
-        return dataURL;
+        const data = JSON.parse(keys.data);
+        data.url = dataURL;
+        return data;
       }
     } catch (e) {
       error(e);
@@ -152,15 +173,15 @@ onNewSettings(() => {
   }
 
   async function cacheImageForNextTime() {
-    const imgURL = await getRandomImageURL();
+    const data = await getRandomImageData();
     try {
-      const res = await fetch(imgURL);
+      const res = await fetch(data.url);
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const img = new Image();
       img.src = url;
       await img.decode();
-      await setLocalStorage({img: blob});
+      await setLocalStorage({data: JSON.stringify(data), img: blob});
     } catch (e) {
       console.error(e);
     }
@@ -175,6 +196,7 @@ onNewSettings(() => {
       error(e);
     }
   }
+
   function insertVideo(src) {
     const video = document.querySelector('#myVideo');
     const source = document.createElement('source');
