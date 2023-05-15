@@ -1,4 +1,4 @@
-const ctx = document.createElement('canvas').getContext('2d');
+const ctx = document.createElement('canvas').getContext('2d', {willReadFrequently: true});
 
 const cache = new Map();
 
