@@ -1,4 +1,5 @@
 /* eslint-env webextensions, browser */
+import * as twgl from './3rdparty/twgl-full.module.js';
 import {
   settings,
 } from './settings.js';
@@ -12,6 +13,51 @@ import {
   loadSettings,
   onNewSettings,
 } from './utils.js';
+
+let imgWidth = 10000;
+let imgHeight = 10000;
+let useVideo = false;
+
+const vs = `#version 300 es
+void main() {
+  vec4 points[3];
+  points[0] = vec4(-1,  3, 0, 1);
+  points[1] = vec4( 3, -1, 0, 1);
+  points[2] = vec4(-1, -1, 0, 1);
+
+  gl_Position = points[gl_VertexID];
+}
+`;
+
+const fs = `#version 300 es
+precision mediump float;
+
+out vec4 outColor;
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / vec2(4000);
+  float noise = fract(sin(dot(uv, vec2(12.9898,78.233)*2.0)) * 43758.5453);
+  outColor = vec4(vec3(noise),1);    
+}
+`;
+
+const gl = document.querySelector('#grain').getContext('webgl2');
+const program = twgl.createProgram(gl, [vs, fs]);
+
+function render() {
+  gl.canvas.width = gl.canvas.clientWidth;
+  gl.canvas.height = gl.canvas.clientHeight;
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  gl.useProgram(program);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+const observer = new ResizeObserver(render);
+observer.observe(gl.canvas);
+
+// setInterval(() => {
+//   gl.canvas.style.display = !!gl.canvas.style.display ? '' : 'none';
+// }, 1000);
 
 function randomElem(array) {
   const ndx = Math.random() * array.length | 0;
@@ -95,6 +141,14 @@ function update() {
   info.classList.remove(...infoCSS.flat().flat());
   info.classList.add(...infoCSS[settings.vPosition][settings.hPosition]);
 
+  const imgAspectH = document.body.clientWidth / imgWidth;
+  const imgAspectV = document.body.clientHeight / imgHeight;
+  const maxAspect = Math.max(imgAspectH, imgAspectV);
+  const showGrain = settings.grain && !useVideo && maxAspect > 2;
+  // console.log(showGrain, document.body.clientWidth, document.body.clientHeight, imgWidth, imgHeight, maxAspect, useVideo);
+
+  gl.canvas.style.display = showGrain ? '' : 'none';
+
   updateTime();
   const elem = document.querySelector('#time');
   removeGap(elem);
@@ -129,9 +183,9 @@ onNewSettings(() => {
 
 (async function() {
   await loadSettings();
+  useVideo = Math.random() * 100 < settings.videoOdds;
   update();
 
-  const useVideo = Math.random() * 100 < settings.videoOdds;
   if (useVideo) {
     fetchVideo();
   } else {
@@ -152,7 +206,14 @@ onNewSettings(() => {
     const user = document.querySelector('#user');
     title.textContent = data.desc;
     user.textContent = data.user;
-    user.href = data.link
+    user.href = data.link;
+
+    const img = new Image();
+    img.src = imgURL;
+    await img.decode();
+    imgWidth = img.naturalWidth;
+    imgHeight = img.naturalHeight;
+    update();
 
     cacheImageForNextTime();
   }

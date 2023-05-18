@@ -199,12 +199,23 @@ video {
 #info.bottom {
   bottom: var(--padding);
 }
+#grain {
+  position: fixed;
+  left: 0;
+  top: 0;
+  mix-blend-mode: overlay;
+  display: block;
+  opacity: 18%;
+  width: 100%;
+  height: 100%;
+}
   </style>
 </head>
 <body>
   <script src="newpage.js" type="module"></script>
   <div id="bgimg">
     <video muted loop id="myVideo"></video>
+    <canvas id="grain"></canvas>
     <div id="content">
       <div>
         <div id="top">
