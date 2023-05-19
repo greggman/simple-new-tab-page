@@ -18,6 +18,11 @@ let imgWidth = 10000;
 let imgHeight = 10000;
 let useVideo = false;
 
+const lerp = (a, b, t) => a + (b - t) * t;
+const clamp = (v, min, max) => Math.max(Math.min(max, v), min);
+const clamp01 = v => clamp(v, 0, 1);
+const mapRange = (v, x, y, s, t) => (v - x) * (t - s) / (y - x) + s;
+
 const vs = `#version 300 es
 void main() {
   vec4 points[3];
@@ -45,8 +50,9 @@ const gl = document.querySelector('#grain').getContext('webgl2');
 const program = twgl.createProgram(gl, [vs, fs]);
 
 function render() {
-  gl.canvas.width = gl.canvas.clientWidth;
-  gl.canvas.height = gl.canvas.clientHeight;
+  update();
+  gl.canvas.width = document.body.clientWidth;
+  gl.canvas.height = document.body.clientHeight;
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.useProgram(program);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -144,10 +150,10 @@ function update() {
   const imgAspectH = document.body.clientWidth / imgWidth;
   const imgAspectV = document.body.clientHeight / imgHeight;
   const maxAspect = Math.max(imgAspectH, imgAspectV);
-  const showGrain = settings.grain && !useVideo && maxAspect > 2;
-  // console.log(showGrain, document.body.clientWidth, document.body.clientHeight, imgWidth, imgHeight, maxAspect, useVideo);
+  const opacity = clamp01(mapRange(maxAspect, 1.5, 2.5, 0, 1));
+  //console.log('opacity:', opacity, 'body:', document.body.clientWidth, document.body.clientHeight, 'img:', imgWidth, imgHeight, 'aspect:', maxAspect, 'video:', useVideo);
 
-  gl.canvas.style.display = showGrain ? '' : 'none';
+  gl.canvas.style.opacity = `${settings.grain ? opacity * 12 : 0}%`;
 
   updateTime();
   const elem = document.querySelector('#time');
