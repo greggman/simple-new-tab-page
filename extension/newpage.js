@@ -87,6 +87,13 @@ function looksLikeFilename(s) {
     (hasCommonPunctuation && !hasSpace) ||
     ((hasLetters && hasNumbers) && !hasSpace);
 }
+*/
+
+function removeFilenames(s) {
+  return s.replace(/(DSC|IMG)[a-z0-9_ -]+/ig, '')
+          .replace(/(\.| |-)(jpeg|jpg|png)/ig, '')
+          .trim();
+}
 
 async function getRandomImageData(numImages) {
   numImages = numImages || 94979;
@@ -248,7 +255,8 @@ onNewSettings(() => {
     imgHeight = img.naturalHeight;
     update();
 
-    title.textContent = looksLikeFilename(data.desc) ? '⬥' : data.desc || '⬦';
+    const desc = removeFilenames(data.desc);
+    title.textContent = desc ? desc : '⬥';
     setIfTruthy(title, 'href', data.imgLink);
     user.textContent = data.user || '';
     setIfTruthy(user, 'href', data.link);
