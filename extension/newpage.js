@@ -184,7 +184,8 @@ function update() {
   const opacity = clamp01(mapRange(maxAspect, 1.5, 2.5, 0, 1));
   //console.log('opacity:', opacity, 'body:', document.body.clientWidth, document.body.clientHeight, 'img:', imgWidth, imgHeight, 'aspect:', maxAspect, 'video:', useVideo);
 
-  gl.canvas.style.opacity = `${settings.grain ? opacity * 12 : 0}%`;
+  //gl.canvas.style.opacity = `${settings.grain ? opacity * 12 : 0}%`;
+  gl.canvas.style.opacity = `${opacity * 12}%`;
 
   updateTime();
   const elem = document.querySelector('#time');
