@@ -1,9 +1,8 @@
+/* eslint-env webextensions, browser */
 import {
   settings,
 } from './settings.js';
 import {
-  getExtensionLocalStorage,
-  setExtensionLocalStorage,
   loadSettings,
   saveSettings,
 } from './utils.js';
