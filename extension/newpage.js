@@ -220,6 +220,12 @@ onNewSettings(() => {
     fetchImage();
   }
 
+  function setIfTruthy(obj, key, value) {
+    if (value) {
+      obj[key] = value;
+    }
+  }
+
   async function fetchImage() {
     let data = await getCachedImageData();
     if (!data) {
@@ -233,11 +239,6 @@ onNewSettings(() => {
     const title = document.querySelector('#title');
     const user = document.querySelector('#user');
 
-    // --- fix VVV---
-    title.textContent = data.desc;
-    user.textContent = data.user;
-    user.href = data.link;
-
     const img = new Image();
     img.src = imgURL;
     await img.decode();
@@ -245,12 +246,10 @@ onNewSettings(() => {
     imgHeight = img.naturalHeight;
     update();
 
-    title.textContent = looksLikeFilename(data.desc) ? '' : data.desc || '';
-    title.href = data.imgLink || '';
+    title.textContent = looksLikeFilename(data.desc) ? '⬥' : data.desc || '⬦';
+    setIfTruthy(title, 'href', data.imgLink);
     user.textContent = data.user || '';
-    user.href = data.link || '';
-
-    // fix -- ^^^ --
+    setIfTruthy(user, 'href', data.link);
 
     cacheImageForNextTime();
   }
