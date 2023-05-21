@@ -269,6 +269,73 @@ onNewSettings(() => {
     return undefined;
   }
 
+function findEdge(edgeColor, width, height, pixels, x, y, perPixelDX, perPixelDY, perLineDX, perLineDY) {
+  //const mask = 0xFFFFFFFF;
+  //const mask = 0xFEFEFEFE;
+  //const mask = 0xFCFCFCFC;
+  //const mask = 0xF8F8F8F8;
+  const mask = 0xF0F0F0F0;
+  edgeColor &= mask;
+  while (x >= 0 && y >= 0 && x < width && y < height) {
+    let lineX = x;
+    let lineY = y;
+    while (lineX >= 0 && lineY >= 0 && lineX < width && lineY < height) {
+      const offset = lineY * width + lineX;
+      const pixel = pixels[offset] & mask;
+      if (pixel !== edgeColor) {
+        return [x, y];
+      }
+      lineX += perPixelDX;
+      lineY += perPixelDY;
+    }
+    x += perLineDX;
+    y += perLineDY;
+  }
+
+  return [x, y];
+}
+
+async function cropImage(blob) {
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.src = url;
+  await img.decode();
+
+  const canvas = document.createElement('canvas');
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const {width, height} = canvas;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const imgData = ctx.getImageData(0, 0, width, height);
+  const pixels = new Uint32Array(imgData.data.buffer);
+  const edgeColor = pixels[0];
+
+  //                                                        x          y           dx dy lineDX lineDY
+  const top    = findEdge(edgeColor, width, height, pixels, 0,         0,          1,  0,  0,  1)[1];
+  const bottom = findEdge(edgeColor, width, height, pixels, 0,         height - 1, 1,  0,  0, -1)[1];
+  const left   = findEdge(edgeColor, width, height, pixels, 0,         0,          0,  1,  1,  0)[0];
+  const right  = findEdge(edgeColor, width, height, pixels, width - 1, 0,          0,  1, -1,  0)[0];
+  const w = Math.max(0, right - left + 1);
+  const h = Math.max(0, bottom - top + 1);
+
+  //console.log('lrtbwh', left, right, top, bottom, w, h, img.naturalWidth, img.naturalHeight);
+
+  const cropAreaSize = w * h;
+  const imageAreaSize = width * height;
+  if (cropAreaSize > imageAreaSize / 2 && w < width - 2 && h < height - 2) {
+    ctx.canvas.width = w;
+    ctx.canvas.height = h;
+    //console.log('crop:', left, top, w, h, 'orig:', width, height);
+    ctx.drawImage(img,
+      left + 2, top + 2, w - 4, h - 4,
+      0, 0, w - 4, h - 4,
+    );
+    blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+  }
+  return blob;
+}
+
   async function cacheImageForNextTime() {
     let numImages;
     try {
@@ -282,11 +349,8 @@ onNewSettings(() => {
     const data = await getRandomImageData(numImages);
     try {
       const res = await fetch(data.url);
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const img = new Image();
-      img.src = url;
-      await img.decode();
+      const blob = await cropImage(await res.blob());
+
       await setLocalStorage({data: JSON.stringify(data), img: blob});
     } catch (e) {
       console.error(e);
