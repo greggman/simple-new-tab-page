@@ -77,6 +77,7 @@ function randomElem(array) {
 // https://flickr.com/photo.gne?id=52891507238
 // live.staticflickr.com/65535/52891507238_7eb2b36210_n.jpg
 
+/*
 function looksLikeFilename(s) {
   const hasCommonPunctuation = s.includes('-') || s.includes('_') || s.includes('#');
   const hasLetters = /[a-z]/i.test(s);
