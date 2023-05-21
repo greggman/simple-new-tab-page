@@ -102,7 +102,7 @@ async function getRandomImageData(numImages) {
   if (data.url.includes('flickr.com')) {
     data.url = data.url.replace(/_[a-z]\.jpg/, '_b.jpg');
     if (!data.imgLink) {
-      const m = /\/(\d+)_[a-z0-9]+_.\.jpg$/.exec(data.url);
+      const m = /\/(\d+)_[a-z0-9]+(_.|)\.jpg$/.exec(data.url);
       if (m) {
         data.imgLink = `https://flickr.com/photo.gne?id=${m[1]}`;
       }
