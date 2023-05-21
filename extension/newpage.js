@@ -18,7 +18,7 @@ let imgWidth = 10000;
 let imgHeight = 10000;
 let useVideo = false;
 
-const lerp = (a, b, t) => a + (b - t) * t;
+//const lerp = (a, b, t) => a + (b - t) * t;
 const clamp = (v, min, max) => Math.max(Math.min(max, v), min);
 const clamp01 = v => clamp(v, 0, 1);
 const mapRange = (v, x, y, s, t) => (v - x) * (t - s) / (y - x) + s;
@@ -49,11 +49,13 @@ void main() {
 const gl = document.querySelector('#grain').getContext('webgl2');
 const program = twgl.createProgram(gl, [vs, fs]);
 
-function render() {
+function render([entry]) {
   update();
-  gl.canvas.width = document.body.clientWidth;
-  gl.canvas.height = document.body.clientHeight;
-  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  gl.canvas.width  = entry.devicePixelContentBoxSize[0].inlineSize;
+  gl.canvas.height = entry.devicePixelContentBoxSize[0].blockSize;
+  //gl.canvas.width  = document.body.clientWidth;
+  //gl.canvas.height = document.body.clientHeight;
+  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
   gl.useProgram(program);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
